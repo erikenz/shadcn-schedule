@@ -4,6 +4,7 @@
     "apps/storybook/.storybook/*.{ts,tsx}",
     "apps/storybook/stories/**/*.{ts,tsx}",
     "changelog.config.ts",
+    "packages/shadcn-schedule/tsdown.config.ts",
     "scripts/**/*.{ts,tsx}"
   ],
   "ignorePatterns": ["**/.agents/**"],
