@@ -127,7 +127,7 @@ jobs:
   changeset:
     name: Changeset Check
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changeset-release/')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
