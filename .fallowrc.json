@@ -2,7 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
   "entry": [
     "apps/storybook/.storybook/*.{ts,tsx}",
-    "apps/storybook/stories/**/*.{ts,tsx}"
+    "apps/storybook/stories/**/*.{ts,tsx}",
+    "changelog.config.ts",
+    "scripts/**/*.{ts,tsx}"
   ],
   "ignorePatterns": ["**/.agents/**"],
   "ignoreDependencies": [
@@ -10,7 +12,9 @@
     "eslint-plugin-github",
     "eslint-plugin-sonarjs",
     "oxlint-plugin-react-doctor",
-    "react-doctor"
+    "react-doctor",
+    "changelogen",
+    "semver"
   ],
   "publicPackages": ["shadcn-schedule"],
   "workspaces": {
