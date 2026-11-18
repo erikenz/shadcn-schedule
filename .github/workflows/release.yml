@@ -2,8 +2,19 @@ name: Release
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*"
   workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: minor
 
 concurrency:
   group: release-${{ github.ref }}
@@ -11,11 +22,10 @@ concurrency:
 
 jobs:
   release:
-    name: Release / Version Packages
+    name: Release to NPM & GitHub
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
       id-token: write
     steps:
       - name: Checkout repository
@@ -39,13 +49,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Create Release Pull Request or Publish to NPM
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: pnpm release
-          version: pnpm version-packages
-          title: "chore: version packages"
-          commit: "chore: version packages"
+      - name: Build library
+        run: pnpm build
+
+      - name: Publish to NPM & Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          BUMP: ${{ inputs.bump || 'minor' }}
+        run: pnpm tsx scripts/publish-ci.ts

@@ -124,36 +124,11 @@ jobs:
       - name: Build packages and apps
         run: pnpm build
 
-  changeset:
-    name: Changeset Check
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changeset-release/')
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Check for Changesets
-        run: pnpm changeset status --since=origin/${{ github.base_ref }}
-
   gate:
     name: Quality Gate
     runs-on: ubuntu-latest
     if: always()
-    needs: [check, typecheck, test, fallow, build, changeset]
+    needs: [check, typecheck, test, fallow, build]
     steps:
       - name: Check Statuses
         run: |
@@ -162,14 +137,12 @@ jobs:
           test="${{ needs.test.result }}"
           fallow="${{ needs.fallow.result }}"
           build="${{ needs.build.result }}"
-          changeset="${{ needs.changeset.result }}"
 
           echo "check: $check"
           echo "typecheck: $typecheck"
           echo "test: $test"
           echo "fallow: $fallow"
           echo "build: $build"
-          echo "changeset: $changeset"
 
           for result in "$check" "$typecheck" "$test" "$fallow" "$build"; do
             if [ "$result" != "success" ]; then
@@ -177,11 +150,5 @@ jobs:
               exit 1
             fi
           done
-
-          # Changeset is skipped on pushes to main, but required to succeed on pull requests
-          if [ "$changeset" != "success" ] && [ "$changeset" != "skipped" ]; then
-            echo "Error: Changeset check failed with status: $changeset"
-            exit 1
-          fi
 
           echo "All checks passed successfully."

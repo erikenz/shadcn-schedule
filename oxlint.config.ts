@@ -59,6 +59,17 @@ const config: OxlintConfig = defineConfig({
         "typescript/no-unsafe-assignment": "off",
       },
     },
+    {
+      files: ["scripts/**/*.{ts,js,mjs}"],
+      rules: {
+        "sonarjs/no-os-command-from-path": "off",
+        "anti-slop/no-unsafe-dictionary-type": "off",
+        "anti-slop/require-safety-comment-for-type-assertion": "off",
+        "anti-slop/no-runtime-typeof": "off",
+        "typescript/no-unsafe-type-assertion": "off",
+        "eslint/no-negated-condition": "off",
+      },
+    },
   ],
 });
 
