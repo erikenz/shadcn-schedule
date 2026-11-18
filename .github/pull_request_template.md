@@ -10,10 +10,9 @@
 - [ ] Documentation update
 - [ ] Performance improvement / Refactoring
 
-## Changeset
+## Conventional Commit
 
-- [ ] I have added a changeset via `pnpm changeset` (required for user-facing changes)
-- [ ] This change does not require a changeset (docs, internal tooling, CI)
+- [ ] My PR title follows [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat: ...`, `fix: ...`, `docs: ...`)
 
 ## Checklist
 

@@ -8,7 +8,15 @@
 
 Built with TypeScript, Tailwind CSS 4, and Base UI / Radix primitives.
 
-[![CI](https://github.com/erikenz/shadcn-schedule/actions/workflows/ci.yml/badge.svg)](https://github.com/erikenz/shadcn-schedule/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/erikenz/shadcn-schedule/actions/workflows/ci.yml/badge.svg)](https://github.com/erikenz/shadcn-schedule/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/shadcn-schedule.svg)](https://www.npmjs.com/package/shadcn-schedule) [![Storybook](https://img.shields.io/badge/Storybook-Live_Docs_%26_Demo-ff4785.svg?logo=storybook)](https://erikenz.github.io/shadcn-schedule/) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+---
+
+## 📖 Live Documentation & Interactive Demo
+
+Experience all views (day, week, month, agenda), themes, multi-resource scheduling, and plugins live in Storybook:
+
+👉 [**https://erikenz.github.io/shadcn-schedule**](https://erikenz.github.io/shadcn-schedule/)
 
 ---
 
