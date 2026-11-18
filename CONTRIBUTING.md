@@ -17,10 +17,9 @@ This project is organized as a Turborepo + pnpm monorepo:
 ```
 shadcn-schedule/
 ├── apps/
-│   └── storybook/             # Component playground and visual preview environment
+│   └── storybook/             # Component playground and documentation
 ├── packages/
 │   └── shadcn-schedule/       # Core calendar and scheduling library
-├── .changeset/                # Version bumping and release management
 ├── oxlint.config.ts           # Oxlint & Ultracite rules
 └── turbo.json                 # Turborepo task pipeline
 ```
@@ -87,21 +86,17 @@ pnpm build
 
 ---
 
-## Adding a Changeset
+## Conventional Commits
 
-Any change that impacts the public package must include a changeset:
+We use Conventional Commits to automatically generate release notes and changelogs. Please prefix your commit and pull request titles with one of the following:
 
-```bash
-pnpm changeset
-```
-
-Follow the interactive prompts:
-
-1. Select `shadcn-schedule`
-2. Choose version bump type (`patch` for bug fixes, `minor` for new backwards-compatible features, `major` for breaking changes)
-3. Enter a clear summary of your changes
-
-Commit the generated Markdown file in `.changeset/` along with your code changes.
+- `feat:` — New user-facing feature or enhancement
+- `fix:` — Bug fix
+- `docs:` — Documentation changes
+- `chore:` — Maintenance, dependency bumps, or tool configuration
+- `refactor:` — Code changes that neither fix a bug nor add a feature
+- `perf:` — Performance improvements
+- `test:` — Adding or updating test suites
 
 ---
 
