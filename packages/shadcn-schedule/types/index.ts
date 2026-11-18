@@ -200,6 +200,14 @@ export interface ViewConfig {
   /** The resource axis. Set only when the calendar renders resources. */
   resources?: Resource[];
   /**
+   * Custom width for the resource column in horizontal views (e.g. '3rem', '120px', 120, or 'w-24').
+   */
+  resourceColumnWidth?: string | number;
+  /**
+   * Alias for `resourceColumnWidth`.
+   */
+  resourceWidth?: string | number;
+  /**
    * Week-view granularity when `resources` is set: 'hourly' (default) nests
    * hour slots under each day; 'daily' shows one cell per day.
    */

@@ -11,6 +11,13 @@ import { cn } from "@/lib/cn";
 import { RESOURCE_ROW_LABEL_WIDTH } from "@/lib/constants";
 import { getDayKey } from "@/lib/utils/date-utils";
 import { keys } from "@/lib/utils/keys";
+import {
+  cleanMergeResourceWidth,
+  computeResourceWidthStyle,
+  extractWidthClass,
+  hasWidthClass,
+  resolveResourceClasses,
+} from "@/lib/utils/resource-width";
 import type {
   HorizontalCellSpec,
   HorizontalRowSpec,
@@ -110,12 +117,37 @@ const NoMemoHorizontalGridRow: React.FC<HorizontalGridRowProps> = ({
   allDay,
   showDayNumber = false,
 }) => {
-  const { renderResource } = useSmartCalendarContext();
+  const {
+    renderResource,
+    classesOverride,
+    resourceColumnWidth,
+    resourceWidth,
+  } = useSmartCalendarContext((c) => ({
+    classesOverride: c.classesOverride,
+    renderResource: c.renderResource,
+    resourceColumnWidth: c.resourceColumnWidth,
+    resourceWidth: c.resourceWidth,
+  }));
 
   const isResourceCalendar = variant === "resource";
   // Flat columns: each column has col.day (regular month, resource month)
   // Grouped columns: each column has col.days[] (resource week horizontal)
   const isGrouped = columns.some((col) => col.days);
+
+  const customWidth = resourceColumnWidth ?? resourceWidth;
+  const customWidthClass = extractWidthClass(customWidth);
+
+  const { finalLabelClass } = resolveResourceClasses(
+    classesOverride,
+    customWidthClass
+  );
+
+  const labelHasWidth = hasWidthClass(finalLabelClass);
+
+  const rowResourceStyle = computeResourceWidthStyle({
+    customWidth,
+    hasWidthInClasses: labelHasWidth,
+  });
 
   // Collect all days for flat rows
   const flatDays = useMemo(() => {
@@ -144,16 +176,21 @@ const NoMemoHorizontalGridRow: React.FC<HorizontalGridRowProps> = ({
       {isResourceCalendar && resource ? (
         <ResourceCell
           className={cn(
-            "bg-background sticky left-0 z-20 flex h-full items-center border-r p-2",
-            RESOURCE_ROW_LABEL_WIDTH
+            "bg-background sticky left-0 z-20 flex h-full min-w-0 items-center border-r p-2",
+            cleanMergeResourceWidth(RESOURCE_ROW_LABEL_WIDTH, finalLabelClass)
           )}
           data-testid={keys.container.horizontal.rowLabel(resource.id)}
           resource={resource}
+          style={rowResourceStyle}
         >
           {renderResource ? (
             renderResource(resource)
           ) : (
-            <div className="text-sm leading-tight font-medium">
+            // oxlint-disable-next-line github/a11y-no-title-attribute -- native tooltip for truncated resource label
+            <div
+              className="w-full min-w-0 truncate text-sm leading-tight font-medium"
+              title={resource.title}
+            >
               {resource.title}
             </div>
           )}

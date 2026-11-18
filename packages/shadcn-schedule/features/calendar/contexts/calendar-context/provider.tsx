@@ -35,6 +35,7 @@ export interface CalendarProviderProps<TMeta = unknown> {
   // Optional, as React's own `PropsWithChildren` has it: a provider with no
   // content is a no-op, and `createElement(type, props, children)` stays valid.
   children?: ReactNode;
+  className?: string;
   classesOverride?: CalendarClassesOverride;
   components?: CalendarComponents;
   /** Max stacked events per day in horizontal grids; the engine defaults it. */
@@ -89,13 +90,22 @@ export interface CalendarProviderProps<TMeta = unknown> {
   renderHour?: (date: Temporal.ZonedDateTime) => ReactNode;
   /** Custom render for resource header cells. */
   renderResource?: (resource: Resource) => React.ReactNode;
+  /**
+   * Custom width for the resource column in horizontal views (e.g. '3rem', '120px', 120, or 'w-24').
+   */
+  resourceColumnWidth?: string | number;
   /** Fixed height (px) for resource rows in horizontal hour-grids. */
   resourceRowHeight?: number;
+  /**
+   * Alias for `resourceColumnWidth`.
+   */
+  resourceWidth?: string | number;
   /** The resource axis. Absent/empty → a regular calendar (no filtering, no resource columns). */
   resources?: Resource[];
   scrollTime?: string;
   slotDuration?: SlotDuration;
   stickyViewHeader?: boolean;
+  style?: React.CSSProperties & Record<string, string | number>;
   timeFormat?: TimeFormat;
   timezone?: string;
   // Translation options - provide either translations object OR translator function

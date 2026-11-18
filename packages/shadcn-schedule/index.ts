@@ -27,6 +27,13 @@ export { weekView } from "@/features/calendar/components/views/week";
 
 export { yearView } from "@/features/calendar/components/views/year";
 
+export { RESOURCE_ROW_LABEL_WIDTH } from "@/lib/constants";
+
+export {
+  ResourcesCornerCell,
+  type ResourcesCornerCellProps,
+} from "@/features/calendar/components/views/resource-axis";
+
 // Public calendar context hooks
 export {
   type CalendarApi,
