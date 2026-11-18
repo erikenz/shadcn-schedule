@@ -1,6 +1,11 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from "tsdown";
 
 export default defineConfig({
+  clean: true,
+  deps: {
+    neverBundle: ["react", "react-dom"],
+  },
+  dts: true,
   entry: {
     index: "index.ts",
     "plugins/agenda/index": "plugins/agenda/index.ts",
@@ -9,8 +14,12 @@ export default defineConfig({
     "testing/index": "testing/index.tsx",
   },
   format: ["esm", "cjs"],
-  dts: true,
+  outExtensions: ({ format }) => {
+    if (format === "es") {
+      return { js: ".js", dts: ".d.ts" };
+    }
+
+    return { js: ".cjs", dts: ".d.cts" };
+  },
   sourcemap: true,
-  clean: true,
-  external: ["react", "react-dom"],
 });

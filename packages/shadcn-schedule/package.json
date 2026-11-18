@@ -93,12 +93,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "check": "ultracite check",
     "fix": "ultracite fix",
     "format": "oxfmt --write",
     "lint": "oxlint",
-    "prepack": "tsup",
+    "prepack": "tsdown",
     "test": "cross-env TZ=UTC vitest run",
     "test:watch": "cross-env TZ=UTC vitest",
     "typecheck": "tsc --noEmit"
@@ -133,8 +133,8 @@
     "react": "19.3.1",
     "react-doctor": "0.9.23",
     "react-dom": "19.3.1",
-    "tsup": "9.0.0",
-    "typescript": "5.8.2",
+    "tsdown": "0.23.7",
+    "typescript": "7.0.2",
     "ultracite": "8.2.1",
     "vitest": "5.1.0"
   },
