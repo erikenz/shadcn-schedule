@@ -111,6 +111,8 @@ export const keys = {
     resource: {
       // The vertical-arrangement resource header (day AND month views).
       columnsHeader: "resource-columns-header",
+      // The horizontal-arrangement sticky resource corner header cell.
+      cornerCell: "resource-corner-cell",
       monthDay: (day: Temporal.ZonedDateTime) =>
         `resource-month-header-${toISOString(day)}`,
       timeLabel: (view: "week" | "day", hour: number | string) =>

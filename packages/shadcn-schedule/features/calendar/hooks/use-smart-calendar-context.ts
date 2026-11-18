@@ -1,7 +1,7 @@
 import type React from "react";
 import { useContext } from "react";
 import type { Temporal } from "temporal-polyfill";
-import { useStore } from "zustand";
+import { createStore, useStore } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 
 import type {
@@ -107,6 +107,8 @@ export interface CalendarApi<TMeta = unknown> {
     slotName: string,
     context: PluginSlotContext
   ) => React.ReactNode[];
+  readonly resourceColumnWidth?: string | number;
+  readonly resourceWidth?: string | number;
   readonly resources: Resource[];
   readonly selectDate: (date: Temporal.ZonedDateTime) => void;
   readonly selectedDate: Temporal.ZonedDateTime | null;
@@ -172,6 +174,37 @@ export function useSmartCalendarContext<T, TMeta = unknown>(
   return useStore(store, shallowSelector);
 }
 
+const FALLBACK_EMPTY_STORE: unknown = createStore(() => ({}));
+
+const getFallbackStore = <TMeta>(): CalendarStore<TMeta> => {
+  if (isCalendarStore<TMeta>(FALLBACK_EMPTY_STORE)) {
+    return FALLBACK_EMPTY_STORE;
+  }
+
+  throw new Error("Invalid fallback store");
+};
+
+/**
+ * Hook for optional context reads (e.g. standalone cells) that falls back gracefully
+ * instead of throwing when mounted outside a CalendarProvider.
+ */
+export const useOptionalCalendarContext = <T, TMeta = unknown>(
+  selector: (context: Partial<SmartCalendarContextType<TMeta>>) => T
+): T => {
+  const store = useContext(CalendarStoreContext);
+
+  const targetStore = isCalendarStore<TMeta>(store)
+    ? store
+    : getFallbackStore<TMeta>();
+
+  const shallowSelector = useShallow<
+    Partial<SmartCalendarContextType<TMeta>>,
+    T
+  >(selector);
+
+  return useStore(targetStore, shallowSelector);
+};
+
 /**
  * Public hook exported for library users.
  * Returns a reactive calendar API with shallow equality.
@@ -203,6 +236,8 @@ export const useCalendarContext = <TMeta = unknown>(): CalendarApi<TMeta> =>
     rawEvents: context.rawEvents,
     renderCurrentTimeIndicator: context.renderCurrentTimeIndicator,
     renderSlot: context.renderSlot,
+    resourceColumnWidth: context.resourceColumnWidth,
+    resourceWidth: context.resourceWidth,
     resources: context.resources ?? EMPTY_RESOURCES,
     selectDate: context.selectDate,
     selectedDate: context.selectedDate,

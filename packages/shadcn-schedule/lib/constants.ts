@@ -42,5 +42,4 @@ export const WEEK_DAYS_NUMBER_MAP: Record<WeekDays, number> = {
 export const HEADER_ROW_HEIGHT = "h-12";
 export const GROUPED_HEADER_HEIGHT = "h-24";
 
-export const RESOURCE_ROW_LABEL_WIDTH =
-  "w-36 min-w-36 sm:w-48 sm:min-w-48 shrink-0";
+export { RESOURCE_ROW_LABEL_WIDTH } from "@/lib/utils/resource-width";

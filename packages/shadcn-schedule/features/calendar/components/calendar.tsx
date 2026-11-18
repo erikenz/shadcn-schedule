@@ -13,24 +13,41 @@ import type {
   CalendarPropEvent,
   CalendarProps,
 } from "@/features/calendar/types/index";
+import { cn } from "@/lib/cn";
 import {
   EVENT_BAR_HEIGHT,
   GAP_BETWEEN_ELEMENTS,
   WEEK_DAYS_NUMBER_MAP,
 } from "@/lib/constants";
 import { normalizeEvents, toHiddenDaysSet } from "@/lib/utils/normalize";
+import {
+  hasWidthClass,
+  normalizeResourceWidth,
+} from "@/lib/utils/resource-width";
 import type { CalendarEvent, TimeFormat } from "@/types/index";
 import { safeDate } from "@/utils/helpers";
 
-const CalendarContent: React.FC = () => {
-  const { view, getViews, nextPeriod, prevPeriod, enableSwipeNavigation } =
-    useSmartCalendarContext((c) => ({
-      enableSwipeNavigation: c.enableSwipeNavigation,
-      getViews: c.getViews,
-      nextPeriod: c.nextPeriod,
-      prevPeriod: c.prevPeriod,
-      view: c.view,
-    }));
+const CalendarContent: React.FC<{
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ className, style }) => {
+  const {
+    view,
+    getViews,
+    nextPeriod,
+    prevPeriod,
+    enableSwipeNavigation,
+    resourceColumnWidth,
+    resourceWidth,
+  } = useSmartCalendarContext((c) => ({
+    enableSwipeNavigation: c.enableSwipeNavigation,
+    getViews: c.getViews,
+    nextPeriod: c.nextPeriod,
+    prevPeriod: c.prevPeriod,
+    resourceColumnWidth: c.resourceColumnWidth,
+    resourceWidth: c.resourceWidth,
+    view: c.view,
+  }));
 
   const swipeHandlers = useSwipeNavigation({
     enabled: enableSwipeNavigation,
@@ -38,11 +55,27 @@ const CalendarContent: React.FC = () => {
     onSwipeRight: prevPeriod,
   });
 
+  const customWidth = resourceColumnWidth ?? resourceWidth;
+  const normalizedWidth = normalizeResourceWidth(customWidth);
+
+  const cssVarStyle:
+    | (React.CSSProperties & Record<string, string | number>)
+    | undefined =
+    normalizedWidth !== undefined && !hasWidthClass(normalizedWidth)
+      ? { "--schedule-resource-width": normalizedWidth }
+      : undefined;
+
+  const combinedStyle: React.CSSProperties = { ...cssVarStyle, ...style };
+
   const spec = getViews().find((v) => v.name === view);
   const activeView = spec ? <ViewRenderer key={view} view={spec} /> : null;
 
   return (
-    <div className="flex h-full w-full flex-col" data-testid="calendar">
+    <div
+      className={cn("flex h-full w-full flex-col", className)}
+      data-testid="calendar"
+      style={combinedStyle}
+    >
       <Header className="mb-1 shrink-0 p-1" />
       {/* Calendar Body with AnimatePresence for view transitions */}
       <CalendarDndContext>
@@ -104,6 +137,10 @@ export const Calendar = <TMeta = unknown,>({
   hiddenDays,
   resources,
   orientation,
+  resourceColumnWidth,
+  resourceWidth,
+  className,
+  style,
   ...props
 }: CalendarProps<TMeta>): React.ReactElement => {
   // Stable reference while `events` is unchanged. Without this, a fresh array on
@@ -119,6 +156,7 @@ export const Calendar = <TMeta = unknown,>({
 
   return (
     <CalendarProvider<TMeta>
+      className={className}
       eventHeight={eventHeight}
       eventSpacing={eventSpacing}
       events={normalizedEvents}
@@ -128,13 +166,16 @@ export const Calendar = <TMeta = unknown,>({
       initialDate={safeDate(initialDate)}
       initialView={initialView}
       orientation={orientation}
+      resourceColumnWidth={resourceColumnWidth}
+      resourceWidth={resourceWidth}
       resources={resources}
       stickyViewHeader={stickyViewHeader}
+      style={style}
       timeFormat={resolvedTimeFormat}
       viewHeaderClassName={viewHeaderClassName}
       {...props}
     >
-      <CalendarContent />
+      <CalendarContent className={className} style={style} />
     </CalendarProvider>
   );
 };

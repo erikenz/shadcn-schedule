@@ -143,6 +143,8 @@ export const ViewRenderer: React.FC<{ view: PluginView }> = ({ view }) => {
     hideNonBusinessHours,
     resources,
     orientation,
+    resourceColumnWidth,
+    resourceWidth,
     weekViewGranularity,
   } = useSmartCalendarContext((c) => ({
     businessHours: c.businessHours,
@@ -151,6 +153,8 @@ export const ViewRenderer: React.FC<{ view: PluginView }> = ({ view }) => {
     hiddenDays: c.hiddenDays,
     hideNonBusinessHours: c.hideNonBusinessHours,
     orientation: c.orientation,
+    resourceColumnWidth: c.resourceColumnWidth,
+    resourceWidth: c.resourceWidth,
     resources: c.resources,
     weekViewGranularity: c.weekViewGranularity,
   }));
@@ -162,6 +166,8 @@ export const ViewRenderer: React.FC<{ view: PluginView }> = ({ view }) => {
       hiddenDays,
       hideNonBusinessHours,
       orientation,
+      resourceColumnWidth,
+      resourceWidth,
       resources,
       weekViewGranularity,
     }),
@@ -172,6 +178,8 @@ export const ViewRenderer: React.FC<{ view: PluginView }> = ({ view }) => {
       hideNonBusinessHours,
       resources,
       orientation,
+      resourceColumnWidth,
+      resourceWidth,
       weekViewGranularity,
     ]
   );

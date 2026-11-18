@@ -8,10 +8,18 @@ import {
   GUTTER_WIDTH,
   STICKY_GUTTER_SHADOW,
 } from "@/components/vertical-grid/gutter";
+import { useOptionalCalendarContext } from "@/features/calendar/hooks/use-smart-calendar-context";
 import { cn } from "@/lib/cn";
 import { RESOURCE_ROW_LABEL_WIDTH } from "@/lib/constants";
 import { getDayKey } from "@/lib/utils/date-utils";
 import { keys } from "@/lib/utils/keys";
+import {
+  cleanMergeResourceWidth,
+  computeResourceWidthStyle,
+  extractWidthClass,
+  hasWidthClass,
+  resolveResourceClasses,
+} from "@/lib/utils/resource-width";
 import type {
   HorizontalRowSpec,
   Resource,
@@ -120,16 +128,58 @@ export const ResourceColumnsHeader: React.FC<{ resources: Resource[] }> = ({
   </div>
 );
 
+export interface ResourcesCornerCellProps {
+  className?: string;
+  style?: React.CSSProperties;
+  "data-testid"?: string;
+}
+
 /** The sticky "Resources" corner cell of horizontal resource arrangements. */
 /** Empty corner cell: the row labels below say what the column is. */
-export const ResourcesCornerCell: React.FC = () => (
-  <div
-    className={cn(
-      "bg-background sticky top-0 left-0 z-22 border-r border-b",
-      RESOURCE_ROW_LABEL_WIDTH
-    )}
-  />
-);
+export const ResourcesCornerCell: React.FC<ResourcesCornerCellProps> = ({
+  className,
+  style,
+  "data-testid": dataTestId,
+}) => {
+  const { classesOverride, resourceColumnWidth, resourceWidth } =
+    useOptionalCalendarContext((s) => ({
+      classesOverride: s.classesOverride,
+      resourceColumnWidth: s.resourceColumnWidth,
+      resourceWidth: s.resourceWidth,
+    }));
+
+  const customWidth = resourceColumnWidth ?? resourceWidth;
+  const customWidthClass = extractWidthClass(customWidth);
+
+  const { finalCornerClass } = resolveResourceClasses(
+    classesOverride,
+    customWidthClass
+  );
+
+  const cornerClassToMerge =
+    className !== undefined && className !== ""
+      ? cn(finalCornerClass, className)
+      : finalCornerClass;
+
+  const cornerHasWidth = hasWidthClass(cornerClassToMerge);
+
+  const cornerStyle = computeResourceWidthStyle({
+    customWidth,
+    extraStyle: style,
+    hasWidthInClasses: cornerHasWidth,
+  });
+
+  return (
+    <div
+      className={cn(
+        "bg-background sticky top-0 left-0 z-22 min-w-0 border-r border-b",
+        cleanMergeResourceWidth(RESOURCE_ROW_LABEL_WIDTH, cornerClassToMerge)
+      )}
+      data-testid={dataTestId ?? keys.header.resource.cornerCell}
+      style={cornerStyle}
+    />
+  );
+};
 
 interface ResourceAllDayGroup {
   days: Temporal.ZonedDateTime[];

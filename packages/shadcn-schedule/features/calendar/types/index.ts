@@ -36,6 +36,23 @@ export interface CalendarClassesOverride {
    * @example "bg-gray-100 text-gray-400 cursor-not-allowed"
    */
   disabledCell?: string;
+  /**
+   * Class name for resource row label cells in horizontal views.
+   * Merged with default resource row label styling.
+   * @example "w-24 min-w-24"
+   */
+  resourceLabel?: string;
+  /**
+   * Class name for the top-left resource corner cell in horizontal views.
+   * Merged with default resource corner cell styling.
+   * @example "w-24 min-w-24"
+   */
+  resourceCorner?: string;
+  /**
+   * Alias / class name for resource header elements (e.g. corner cell).
+   * @example "w-24 min-w-24"
+   */
+  resourceHeader?: string;
 }
 
 /** A date accepted from consumers; converted to `Temporal.ZonedDateTime` internally. */
@@ -144,6 +161,16 @@ export interface EventSegment {
 }
 
 export interface CalendarProps<TMeta = unknown> {
+  /**
+   * Additional CSS classes for the root calendar element.
+   */
+  className?: string;
+  /**
+   * Additional inline styles for the root calendar element.
+   * Useful for setting CSS variables such as `--schedule-resource-width`.
+   * @example { "--schedule-resource-width": "3rem" }
+   */
+  style?: React.CSSProperties & Record<string, string | number>;
   /**
    * Custom pluggable components (e.g. `EventForm`).
    */
@@ -418,6 +445,20 @@ export interface CalendarProps<TMeta = unknown> {
    * `dayMaxEvents` x `eventHeight` as usual.
    */
   resourceRowHeight?: number;
+  /**
+   * Custom width for the resource column in horizontal views.
+   * Can be a CSS length (e.g. '3rem', '120px'), a pixel number (e.g. 120), or a Tailwind width class (e.g. 'w-24').
+   * Setting this keeps the corner header cell and resource row cells aligned.
+   * You can also configure this via CSS variable `--schedule-resource-width` on the calendar or parent element.
+   * @example "3rem"
+   * @example 120
+   * @example "w-24"
+   */
+  resourceColumnWidth?: string | number;
+  /**
+   * Alias for `resourceColumnWidth`.
+   */
+  resourceWidth?: string | number;
   /**
    * Resources (people, rooms, equipment) to display as a resource axis.
    * When set: events are shown per matching resource (`resourceIds`, falling

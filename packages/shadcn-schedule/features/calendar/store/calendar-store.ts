@@ -207,6 +207,14 @@ const syncPresentationProps = <TMeta>(
     updates.renderResource = nextProps.renderResource;
   }
 
+  if (nextProps.resourceColumnWidth !== undefined) {
+    updates.resourceColumnWidth = nextProps.resourceColumnWidth;
+  }
+
+  if (nextProps.resourceWidth !== undefined) {
+    updates.resourceWidth = nextProps.resourceWidth;
+  }
+
   if (nextProps.stickyViewHeader !== undefined) {
     updates.stickyViewHeader = nextProps.stickyViewHeader;
   }
@@ -477,7 +485,9 @@ export interface CalendarState<TMeta = unknown> {
   renderHour?: (date: Temporal.ZonedDateTime) => ReactNode;
   renderResource?: (resource: Resource) => ReactNode;
   renderSlot: (slotName: string, context: PluginSlotContext) => ReactNode[];
+  resourceColumnWidth?: string | number;
   resourceRowHeight?: number;
+  resourceWidth?: string | number;
   resources?: Resource[];
   scrollTime?: string;
   selectDate: (date: Temporal.ZonedDateTime) => void;
@@ -591,7 +601,9 @@ export const createCalendarStore = <TMeta = unknown>(
     renderEventForm,
     renderHour,
     renderResource,
+    resourceColumnWidth,
     resourceRowHeight,
+    resourceWidth,
     scrollTime,
     stickyViewHeader = true,
     timezone = initialDate.timeZoneId,
@@ -1143,7 +1155,9 @@ export const createCalendarStore = <TMeta = unknown>(
       renderHour,
       renderResource,
 
+      resourceColumnWidth,
       resourceRowHeight,
+      resourceWidth,
       resources,
       scrollTime,
       slotDuration,
