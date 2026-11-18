@@ -1,0 +1,54 @@
+name: 🐛 Bug Report
+description: File a bug report to help us reproduce and resolve an issue.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please provide as much detail as possible.
+  - type: input
+    id: package-version
+    attributes:
+      label: shadcn-schedule Version
+      description: What version of `shadcn-schedule` are you using?
+      placeholder: "e.g. 0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: react-version
+    attributes:
+      label: React Version
+      description: What version of React are you running?
+      placeholder: "e.g. 19.0.0"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Current Behavior
+      description: A clear and concise description of what is happening.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal Reproduction Link / Steps to Reproduce
+      description: Please link to a minimal reproduction (StackBlitz, CodeSandbox, or GitHub repo) or list step-by-step instructions.
+      placeholder: |
+        1. Open '...'
+        2. Drag event from '...' to '...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any browser info, OS, or relevant stack traces here.

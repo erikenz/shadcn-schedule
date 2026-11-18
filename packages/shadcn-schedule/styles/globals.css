@@ -1,0 +1,61 @@
+/**
+ * Tailwind v4 source declaration for shadcn-schedule.
+ *
+ * The package's components are styled with Tailwind utilities (shadcn
+ * tokens), so consumers must include this file so Tailwind scans the
+ * package's sources and generates the utilities:
+ *
+ * ```css
+ * @import "shadcn-schedule/styles/globals.css";
+ * ```
+ */
+@source "../dist/**/*.{js,cjs,mjs}";
+@source "../**/*.{ts,tsx}";
+
+/*
+ * Entry animation for the calendar's panels and events. Kept here rather than
+ * composed from tw-animate utilities: the animation is part of this package's
+ * public surface, and a named `animate-*` utility keeps the class names inside
+ * the vocabulary Tailwind can generate for consumers.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --animate-enter-x: cal-enter-x 500ms ease-in-out backwards;
+  --animate-enter-y: cal-enter-y 500ms ease-in-out backwards;
+}
+
+@keyframes cal-enter-x {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+@keyframes cal-enter-y {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}

@@ -1,0 +1,10 @@
+node_modules
+dist
+.turbo
+.cache
+.fallow
+storybook-static
+*.log
+
+.agents
+skills-lock.json

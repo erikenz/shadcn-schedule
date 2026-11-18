@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "entry": [
+    "apps/storybook/.storybook/*.{ts,tsx}",
+    "apps/storybook/stories/**/*.{ts,tsx}"
+  ],
+  "ignorePatterns": ["**/.agents/**"],
+  "ignoreDependencies": [
+    "@shadcn/lint",
+    "eslint-plugin-github",
+    "eslint-plugin-sonarjs",
+    "oxlint-plugin-react-doctor",
+    "react-doctor"
+  ],
+  "publicPackages": ["shadcn-schedule"],
+  "workspaces": {
+    "packages": ["apps/*", "packages/*"]
+  },
+  "rules": {
+    "unused-dependencies": "warn",
+    "css-dead-surface": "off",
+    "complexity-cyclomatic": "warn",
+    "complexity-cognitive": "warn"
+  }
+}

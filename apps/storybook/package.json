@@ -1,0 +1,31 @@
+{
+  "name": "@repo/storybook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "storybook build --disable-telemetry",
+    "dev": "storybook dev -p 6006",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "shadcn-schedule": "workspace:*"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "10.6.7",
+    "@storybook/addon-docs": "10.6.7",
+    "@storybook/addon-themes": "10.6.7",
+    "@storybook/react": "10.6.7",
+    "@storybook/react-vite": "10.6.7",
+    "@tailwindcss/vite": "4.3.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "storybook": "10.6.7",
+    "tailwindcss": "4.3.5",
+    "typescript": "5.8.2",
+    "vite": "8.3.8"
+  }
+}

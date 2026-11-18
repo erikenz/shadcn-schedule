@@ -1,0 +1,613 @@
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
+import type { Temporal } from "temporal-polyfill";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
+import { YearView } from "@/features/calendar/components/year-view/year-view";
+import { CalendarProvider } from "@/features/calendar/contexts/calendar-context/provider";
+import { useSmartCalendarContext } from "@/features/calendar/hooks/use-smart-calendar-context";
+import type { CalendarEvent } from "@/types/index";
+import {
+  format,
+  monthIndex,
+  now,
+  resetNow,
+  setNow,
+  toZonedDateTime,
+} from "@/utils/temporal";
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+// Create specific events for testing event counts and dots
+const createTestEvents = (year: number): CalendarEvent[] => [
+  // January: 3 events on Jan 15
+  {
+    end: toZonedDateTime(`${year}-01-15T10:00:00.000Z`),
+    id: "1",
+    start: toZonedDateTime(`${year}-01-15T09:00:00.000Z`),
+    title: "Jan Event 1",
+  },
+  {
+    end: toZonedDateTime(`${year}-01-15T12:00:00.000Z`),
+    id: "2",
+    start: toZonedDateTime(`${year}-01-15T11:00:00.000Z`),
+    title: "Jan Event 2",
+  },
+  {
+    end: toZonedDateTime(`${year}-01-15T15:00:00.000Z`),
+    id: "3",
+    start: toZonedDateTime(`${year}-01-15T14:00:00.000Z`),
+    title: "Jan Event 3",
+  },
+  // January: 2 events on Jan 20
+  {
+    end: toZonedDateTime(`${year}-01-20T10:00:00.000Z`),
+    id: "4",
+    start: toZonedDateTime(`${year}-01-20T09:00:00.000Z`),
+    title: "Jan Event 4",
+  },
+  {
+    end: toZonedDateTime(`${year}-01-20T12:00:00.000Z`),
+    id: "5",
+    start: toZonedDateTime(`${year}-01-20T11:00:00.000Z`),
+    title: "Jan Event 5",
+  },
+  // January: 1 event on Jan 25
+  {
+    end: toZonedDateTime(`${year}-01-25T10:00:00.000Z`),
+    id: "6",
+    start: toZonedDateTime(`${year}-01-25T09:00:00.000Z`),
+    title: "Jan Event 6",
+  },
+  // February: 1 event
+  {
+    end: toZonedDateTime(`${year}-02-10T10:00:00.000Z`),
+    id: "7",
+    start: toZonedDateTime(`${year}-02-10T09:00:00.000Z`),
+    title: "Feb Event",
+  },
+  // March: 5 events (to test 3+ dots)
+  {
+    end: toZonedDateTime(`${year}-03-05T10:00:00.000Z`),
+    id: "8",
+    start: toZonedDateTime(`${year}-03-05T09:00:00.000Z`),
+    title: "Mar Event 1",
+  },
+  {
+    end: toZonedDateTime(`${year}-03-05T12:00:00.000Z`),
+    id: "9",
+    start: toZonedDateTime(`${year}-03-05T11:00:00.000Z`),
+    title: "Mar Event 2",
+  },
+  {
+    end: toZonedDateTime(`${year}-03-05T14:00:00.000Z`),
+    id: "10",
+    start: toZonedDateTime(`${year}-03-05T13:00:00.000Z`),
+    title: "Mar Event 3",
+  },
+  {
+    end: toZonedDateTime(`${year}-03-05T16:00:00.000Z`),
+    id: "11",
+    start: toZonedDateTime(`${year}-03-05T15:00:00.000Z`),
+    title: "Mar Event 4",
+  },
+  {
+    end: toZonedDateTime(`${year}-03-05T18:00:00.000Z`),
+    id: "12",
+    start: toZonedDateTime(`${year}-03-05T17:00:00.000Z`),
+    title: "Mar Event 5",
+  },
+];
+
+// Test wrapper to capture context values and view changes
+const TestWrapper = ({
+  children,
+  testId,
+}: {
+  children: React.ReactNode;
+  testId: string;
+}) => {
+  const { currentDate, view } = useSmartCalendarContext();
+
+  return (
+    <>
+      <div data-testid={`${testId}-year`}>{currentDate.year}</div>
+      <div data-testid={`${testId}-month`}>{monthIndex(currentDate)}</div>
+      <div data-testid={`${testId}-date`}>{currentDate.day}</div>
+      <div data-testid={`${testId}-view`}>{view}</div>
+      {children}
+    </>
+  );
+};
+
+const renderYearView = (
+  props: Partial<ComponentProps<typeof CalendarProvider>> = {}
+) =>
+  render(
+    <CalendarProvider
+      dayMaxEvents={3}
+      events={[]}
+      firstDayOfWeek={0}
+      locale="en"
+      {...props}
+    >
+      <TestWrapper testId="ctx">
+        <YearView />
+      </TestWrapper>
+    </CalendarProvider>
+  );
+
+describe(YearView, () => {
+  beforeEach(() => {
+    // Pin the clock so today-based cell styling is deterministic. 2025-06-20
+    // avoids colliding with the 2025-06-15 fixture used by the "not today" test.
+    setNow(toZonedDateTime("2025-06-20T12:00:00.000Z"));
+    cleanup();
+  });
+
+  afterEach(() => {
+    resetNow();
+  });
+
+  it("aligns mini-calendar day cells with firstDayOfWeek headers", () => {
+    // June 1, 2025 is a Sunday. With Monday as first day of week, the June
+    // mini-calendar must start on Monday May 26 and span 42 days to July 6.
+    renderYearView({
+      firstDayOfWeek: 1,
+      initialDate: toZonedDateTime("2025-06-15T00:00:00.000Z"),
+    });
+
+    expect(
+      screen.getByTestId("year-day-2025-06-2025-05-26")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("year-day-2025-06-2025-07-06")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("year-day-2025-06-2025-07-07")
+    ).not.toBeInTheDocument();
+  });
+
+  describe("Basic Structure", () => {
+    it("renders year view with scroll area and grid", () => {
+      renderYearView();
+      expect(screen.getByTestId("year-view")).toBeInTheDocument();
+      expect(screen.getByTestId("year-grid")).toBeInTheDocument();
+    });
+
+    it("renders all 12 months", () => {
+      renderYearView();
+
+      for (let month = 1; month <= 12; month += 1) {
+        const monthId = month.toString().padStart(2, "0");
+        expect(screen.getByTestId(`year-month-${monthId}`)).toBeInTheDocument();
+      }
+    });
+
+    it("renders correct month titles", () => {
+      renderYearView();
+
+      for (const [i, name] of monthNames.entries()) {
+        const monthId = (i + 1).toString().padStart(2, "0");
+        const title = screen.getByTestId(`year-month-title-${monthId}`);
+        expect(title).toHaveTextContent(name);
+      }
+    });
+
+    it("renders mini calendar for each month", () => {
+      renderYearView();
+
+      for (let month = 1; month <= 12; month += 1) {
+        const monthId = month.toString().padStart(2, "0");
+        expect(
+          screen.getByTestId(`year-month-mini-${monthId}`)
+        ).toBeInTheDocument();
+      }
+    });
+
+    it("renders weekday headers in each mini calendar", () => {
+      renderYearView();
+      // Each of 12 months has 7 day headers
+      const sundayHeaders = screen.getAllByText("Su");
+      // 1 Sunday per month
+      expect(sundayHeaders).toHaveLength(12);
+    });
+
+    it("renders grid with responsive classes", () => {
+      renderYearView();
+      const grid = screen.getByTestId("year-grid");
+      expect(grid).toHaveClass(
+        "grid",
+        "grid-cols-1",
+        "sm:grid-cols-2",
+        "lg:grid-cols-3"
+      );
+    });
+  });
+
+  describe("Event Count Badge", () => {
+    it("displays correct event count for month with 6 events", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-15`) });
+
+      // January has 6 events total
+      const badge = screen.getByTestId("year-month-count-01");
+      expect(badge).toHaveTextContent("6 Events");
+    });
+
+    it('displays singular "event" for month with 1 event', () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-02-10`) });
+
+      // February has 1 event
+      const badge = screen.getByTestId("year-month-count-02");
+      expect(badge).toHaveTextContent("1 Event");
+    });
+
+    it("displays correct event count for month with 5 events", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-03-05`) });
+
+      // March has 5 events
+      const badge = screen.getByTestId("year-month-count-03");
+      expect(badge).toHaveTextContent("5 Events");
+    });
+
+    it("does not show badge for months with no events", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-04-01`) });
+
+      // April has no events
+      expect(
+        screen.queryByTestId("year-month-count-04")
+      ).not.toBeInTheDocument();
+    });
+
+    it("counts a multi-day event spanning a month boundary in both month badges", () => {
+      const year = 2025;
+
+      const spanningEvent: CalendarEvent = {
+        end: toZonedDateTime(`${year}-02-02T10:00:00.000Z`),
+        id: "span-1",
+        start: toZonedDateTime(`${year}-01-30T18:00:00.000Z`),
+        title: "Spans Jan/Feb",
+      };
+
+      renderYearView({
+        events: [spanningEvent],
+        initialDate: toZonedDateTime(`${year}-01-15T00:00:00.000Z`),
+      });
+
+      const januaryBadge = screen.getByTestId("year-month-count-01");
+      const februaryBadge = screen.getByTestId("year-month-count-02");
+      expect(januaryBadge).toHaveTextContent("1 Event");
+      expect(februaryBadge).toHaveTextContent("1 Event");
+    });
+
+    it("badge has correct styling", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-15`) });
+
+      const badge = screen.getByTestId("year-month-count-01");
+      expect(badge).toHaveClass(
+        "bg-primary",
+        "text-primary-foreground",
+        "rounded-full"
+      );
+    });
+  });
+
+  describe("Event Dots", () => {
+    it("shows 1 dot for day with 1 event", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-25`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-01-2025-01-25");
+      const dots = dayCell.querySelectorAll(".rounded-full.h-\\[3px\\]");
+      expect(dots).toHaveLength(1);
+    });
+
+    it("shows 2 dots for day with 2 events", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-20`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-01-2025-01-20");
+      const dots = dayCell.querySelectorAll(".rounded-full.h-\\[3px\\]");
+      expect(dots).toHaveLength(2);
+    });
+
+    it("shows 3 dots for day with 3 events", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-15`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-01-2025-01-15");
+      const dots = dayCell.querySelectorAll(".rounded-full.h-\\[3px\\]");
+      expect(dots).toHaveLength(3);
+    });
+
+    it("shows max 3 dots for day with 5+ events", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-03-05`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-03-2025-03-05");
+      const dots = dayCell.querySelectorAll(".rounded-full.h-\\[3px\\]");
+      // Max 3 dots even with 5 events
+      expect(dots).toHaveLength(3);
+    });
+
+    it("shows no dots for day with no events", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-10`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-01-2025-01-10");
+      const dots = dayCell.querySelectorAll(".rounded-full.h-\\[3px\\]");
+      expect(dots).toHaveLength(0);
+    });
+
+    it("dots have correct colors", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-15`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-01-2025-01-15");
+      const dots = dayCell.querySelectorAll(".rounded-full.h-\\[3px\\]");
+
+      expect(dots[0]).toHaveClass("bg-primary");
+      expect(dots[1]).toHaveClass("bg-blue-500");
+      expect(dots[2]).toHaveClass("bg-green-500");
+    });
+  });
+
+  describe("Day Cell Accessible Name", () => {
+    it("names the day and its single event", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-25`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-01-2025-01-25");
+      expect(dayCell).toHaveAccessibleName("25 · 1 Event");
+    });
+
+    it("names the day and its event count", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-15`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-01-2025-01-15");
+      expect(dayCell).toHaveAccessibleName("15 · 3 Events");
+    });
+
+    it("names the day alone when it has no events", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+      renderYearView({ events, initialDate: toZonedDateTime(`${year}-01-10`) });
+
+      const dayCell = screen.getByTestId("year-day-2025-01-2025-01-10");
+      expect(dayCell).toHaveAccessibleName("10");
+    });
+  });
+
+  describe("Day Cell Styling", () => {
+    it("today has primary background styling", () => {
+      const today = now();
+      renderYearView({ initialDate: today });
+
+      const todayCell = screen.getByTestId(
+        `year-day-${format(today, "YYYY-MM")}-${format(today, "YYYY-MM-DD")}`
+      );
+
+      expect(todayCell).toHaveClass(
+        "bg-primary",
+        "text-primary-foreground",
+        "rounded-full"
+      );
+    });
+
+    it("current selected date (not today) has muted background", () => {
+      // The pinned clock (2025-06-20) keeps this fixture off "today".
+      const selectedDate = toZonedDateTime("2025-06-15");
+      renderYearView({ initialDate: selectedDate });
+
+      const selectedCell = screen.getByTestId("year-day-2025-06-2025-06-15");
+      expect(selectedCell).toHaveClass("bg-muted", "rounded-full", "font-bold");
+    });
+
+    it("days outside current month have muted styling", () => {
+      // January 2025 starts on Wednesday, so Dec 29-31 2024 appear in the grid
+      renderYearView({ initialDate: toZonedDateTime("2025-01-15") });
+
+      const prevMonthDay = screen.getByTestId("year-day-2025-01-2024-12-29");
+      expect(prevMonthDay).toHaveClass("text-muted-foreground", "opacity-50");
+    });
+
+    it("days with events have font-medium class", () => {
+      const year = 2025;
+      const events = createTestEvents(year);
+
+      // The pinned clock (2025-06-20) keeps this fixture off "today".
+      renderYearView({
+        events,
+        initialDate: toZonedDateTime(`${year}-02-01`),
+      });
+
+      const eventDay = screen.getByTestId("year-day-2025-01-2025-01-25");
+      expect(eventDay).toHaveClass("font-medium");
+    });
+  });
+
+  describe("Click Interactions", () => {
+    it("clicking month title navigates to month view", () => {
+      renderYearView({ initialDate: toZonedDateTime("2025-01-15") });
+
+      const monthTitle = screen.getByTestId("year-month-title-03");
+      fireEvent.click(monthTitle);
+
+      // Should change view to 'month'
+      expect(screen.getByTestId("ctx-view")).toHaveTextContent("month");
+      // Should update currentDate to March
+      expect(screen.getByTestId("ctx-month")).toHaveTextContent("2");
+    });
+
+    it("clicking day cell navigates to day view", () => {
+      renderYearView({ initialDate: toZonedDateTime("2025-01-15") });
+
+      const dayCell = screen.getByTestId("year-day-2025-03-2025-03-10");
+      fireEvent.click(dayCell);
+
+      // Should change view to 'day'
+      expect(screen.getByTestId("ctx-view")).toHaveTextContent("day");
+      // Should update currentDate to March 10
+      expect(screen.getByTestId("ctx-month")).toHaveTextContent("2");
+      expect(screen.getByTestId("ctx-date")).toHaveTextContent("10");
+    });
+
+    it("day click does not bubble to month click", () => {
+      renderYearView({ initialDate: toZonedDateTime("2025-01-15") });
+
+      const dayCell = screen.getByTestId("year-day-2025-03-2025-03-10");
+      fireEvent.click(dayCell);
+
+      // Should be day view, not month view
+      expect(screen.getByTestId("ctx-view")).toHaveTextContent("day");
+    });
+
+    // Issue #231: consumers loading events from onDateChange must receive the
+    // clicked day's range, not a stale range computed from the previous
+    // date/view. Exactly one emission with the final date + range.
+    it("clicking a day cell emits one onDateChange with the clicked day range", () => {
+      const calls: {
+        date: Temporal.ZonedDateTime;
+        range: { start: Temporal.ZonedDateTime; end: Temporal.ZonedDateTime };
+      }[] = [];
+
+      renderYearView({
+        initialDate: toZonedDateTime("2025-01-15"),
+        onDateChange: (
+          date: Temporal.ZonedDateTime,
+          range: { start: Temporal.ZonedDateTime; end: Temporal.ZonedDateTime }
+        ) => {
+          calls.push({ date, range });
+        },
+      });
+
+      fireEvent.click(screen.getByTestId("year-day-2025-03-2025-03-10"));
+
+      expect(calls).toHaveLength(1);
+      const emitted = calls.at(0);
+      expect(emitted ? format(emitted.date, "YYYY-MM-DD") : undefined).toBe(
+        "2025-03-10"
+      );
+      expect(
+        emitted ? format(emitted.range.start, "YYYY-MM-DD") : undefined
+      ).toBe("2025-03-10");
+      expect(
+        emitted ? format(emitted.range.end, "YYYY-MM-DD") : undefined
+      ).toBe("2025-03-10");
+    });
+
+    it("clicking a month title emits one onDateChange with the month grid range", () => {
+      const calls: {
+        date: Temporal.ZonedDateTime;
+        range: { start: Temporal.ZonedDateTime; end: Temporal.ZonedDateTime };
+      }[] = [];
+
+      renderYearView({
+        initialDate: toZonedDateTime("2025-01-15"),
+        onDateChange: (
+          date: Temporal.ZonedDateTime,
+          range: { start: Temporal.ZonedDateTime; end: Temporal.ZonedDateTime }
+        ) => {
+          calls.push({ date, range });
+        },
+      });
+
+      fireEvent.click(screen.getByTestId("year-month-title-03"));
+
+      expect(calls).toHaveLength(1);
+      const emitted = calls.at(0);
+      expect(emitted ? format(emitted.date, "YYYY-MM-DD") : undefined).toBe(
+        "2025-03-01"
+      );
+      // March 2025 month grid (6x7, week starts Sunday): Feb 23 – Apr 5
+      expect(
+        emitted ? format(emitted.range.start, "YYYY-MM-DD") : undefined
+      ).toBe("2025-02-23");
+      expect(
+        emitted ? format(emitted.range.end, "YYYY-MM-DD") : undefined
+      ).toBe("2025-04-05");
+    });
+  });
+
+  describe("Year Navigation", () => {
+    it("displays correct year from initialDate", () => {
+      renderYearView({ initialDate: toZonedDateTime("2030-06-15") });
+      expect(screen.getByTestId("ctx-year")).toHaveTextContent("2030");
+    });
+
+    it("defaults to current year when no initialDate", () => {
+      renderYearView();
+      expect(screen.getByTestId("ctx-year")).toHaveTextContent(
+        now().year.toString()
+      );
+    });
+
+    it("renders days for the correct year", () => {
+      renderYearView({ initialDate: toZonedDateTime("2030-01-15") });
+
+      // Should have January 2030 days
+      expect(
+        screen.getByTestId("year-day-2030-01-2030-01-01")
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("year-day-2030-01-2030-01-31")
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("Mini Calendar Structure", () => {
+    it("each mini calendar has 42 day cells (6 weeks)", () => {
+      renderYearView({ initialDate: toZonedDateTime("2025-01-15") });
+
+      const januaryCalendar = screen.getByTestId("year-month-mini-01");
+      const buttons = januaryCalendar.querySelectorAll('button[type="button"]');
+      expect(buttons).toHaveLength(42);
+    });
+
+    it("mini calendar includes days from adjacent months", () => {
+      // January 2025 starts on Wednesday
+      renderYearView({ initialDate: toZonedDateTime("2025-01-15") });
+
+      // Should include December 2024 days
+      expect(
+        screen.getByTestId("year-day-2025-01-2024-12-29")
+      ).toBeInTheDocument();
+      // Should include February 2025 days
+      expect(
+        screen.getByTestId("year-day-2025-01-2025-02-01")
+      ).toBeInTheDocument();
+    });
+  });
+});
