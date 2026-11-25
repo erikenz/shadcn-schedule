@@ -109,7 +109,7 @@
     "@dnd-kit/modifiers": "9.0.0",
     "class-variance-authority": "0.7.1",
     "cn": "0.5.2",
-    "lucide-react": "1.73.0",
+    "lucide-react": "1.77.0",
     "rrule-temporal": "2.2.9",
     "temporal-polyfill": "1.0.8",
     "zustand": "5.1.0"
