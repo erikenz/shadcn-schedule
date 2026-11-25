@@ -288,8 +288,8 @@ importers:
         specifier: 1.73.0
         version: 1.73.0(@types/react@19.3.0)(react@19.3.1)
       rrule-temporal:
-        specifier: 2.2.9
-        version: 2.2.9
+        specifier: 2.3.0
+        version: 2.3.0
       temporal-polyfill:
         specifier: 1.0.8
         version: 1.0.8
@@ -4469,8 +4469,8 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  rrule-temporal@2.2.9:
-    resolution: {integrity: sha512-5Bc+IxlGKZtOF/JtkM+39VtK9uYvg1NRWGzZCy2QQj9KFZ4mMMa949GMtGv0Ud/bzyk2KuGhwxmVDuq8cnbzuA==}
+  rrule-temporal@2.3.0:
+    resolution: {integrity: sha512-5V5n6ZtD/0eRbMdOeiOqJ3GlIEy/qSWVq0d0zxjgZoD1HcujPT1TMeklwxsPokBnHdxTSlfgWYf7lefrwNKlaA==}
 
   run-applescript@7.1.0:
     resolution: {integrity: sha512-DPe5pVFaAsinSaV6QjQ6gdiedWDcRCbUuiQfQa2wmWV7+xC9bGulGI8+TdRmoFkAPaBXk8CrAbnlY2ISniJ47Q==}
@@ -8919,7 +8919,7 @@ snapshots:
       fsevents: 2.3.3
     optional: true
 
-  rrule-temporal@2.2.9:
+  rrule-temporal@2.3.0:
     dependencies:
       temporal-spec: 1.0.1
 
